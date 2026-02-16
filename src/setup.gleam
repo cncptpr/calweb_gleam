@@ -14,6 +14,7 @@ import lustre/element
 import lustre/element/html.{html}
 import lustre/server_component
 import mist.{type Connection, type ResponseData}
+import styles
 import todo_list
 
 // HTML ------------------------------------------------------------------------
@@ -35,6 +36,7 @@ pub fn serve_html() -> Response(ResponseData) {
           [attribute.type_("module"), attribute.src("/lustre/runtime.mjs")],
           "",
         ),
+        html.style([], styles.css),
       ]),
       html.body(
         [attribute.styles([#("max-width", "32rem"), #("margin", "3rem auto")])],
