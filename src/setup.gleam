@@ -1,7 +1,6 @@
 // This is setup code for server_component from the lustre-server-components basic example
 // https://github.com/lustre-labs/lustre/tree/main/examples/06-server-components/01-basic-setup
 
-import counter
 import gleam/bytes_tree
 import gleam/erlang/application
 import gleam/erlang/process.{type Selector, type Subject}
@@ -15,6 +14,7 @@ import lustre/element
 import lustre/element/html.{html}
 import lustre/server_component
 import mist.{type Connection, type ResponseData}
+import todo_list
 
 // HTML ------------------------------------------------------------------------
 
@@ -84,36 +84,36 @@ pub fn serve_runtime() -> Response(ResponseData) {
 
 // WEBSOCKET -------------------------------------------------------------------
 
-pub fn serve_counter(
+pub fn serve_component(
   request: Request(Connection),
   component,
 ) -> Response(ResponseData) {
   mist.websocket(
     request:,
-    on_init: init_counter_socket(_, component),
-    handler: loop_counter_socket,
-    on_close: close_counter_socket,
+    on_init: init_component_socket(_, component),
+    handler: loop_component_socket,
+    on_close: close_component_socket,
   )
 }
 
-type CounterSocket {
-  CounterSocket(
-    component: lustre.Runtime(counter.Msg),
-    self: Subject(server_component.ClientMessage(counter.Msg)),
+type ComponentSocket {
+  ComponentSocket(
+    component: lustre.Runtime(todo_list.Msg),
+    self: Subject(server_component.ClientMessage(todo_list.Msg)),
   )
 }
 
-type CounterSocketMessage =
-  server_component.ClientMessage(counter.Msg)
+type ComponentSocketMessage =
+  server_component.ClientMessage(todo_list.Msg)
 
-type CounterSocketInit =
-  #(CounterSocket, Option(Selector(CounterSocketMessage)))
+type ComponentSocketInit =
+  #(ComponentSocket, Option(Selector(ComponentSocketMessage)))
 
-fn init_counter_socket(_, component) -> CounterSocketInit {
+fn init_component_socket(_, component) -> ComponentSocketInit {
   // The server component runtime communicates to the websocket process using
   // Gleam's standard process messaging. We construct a new subject that the
   // runtime can send messages to, and then we initialise a selector so that we
-  // can handle those messages in `loop_counter_socket`.
+  // can handle those messages in `loop_component_socket`.
   let self = process.new_subject()
   let selector =
     process.new_selector()
@@ -127,14 +127,14 @@ fn init_counter_socket(_, component) -> CounterSocketInit {
   server_component.register_subject(self)
   |> lustre.send(to: component)
 
-  #(CounterSocket(component:, self:), Some(selector))
+  #(ComponentSocket(component:, self:), Some(selector))
 }
 
-fn loop_counter_socket(
-  state: CounterSocket,
-  message: mist.WebsocketMessage(CounterSocketMessage),
+fn loop_component_socket(
+  state: ComponentSocket,
+  message: mist.WebsocketMessage(ComponentSocketMessage),
   connection: mist.WebsocketConnection,
-) -> mist.Next(CounterSocket, CounterSocketMessage) {
+) -> mist.Next(ComponentSocket, ComponentSocketMessage) {
   case message {
     // The client runtime will send us JSON-encoded text frames that we need to
     // decode and pass to the server component runtime.
@@ -168,7 +168,7 @@ fn loop_counter_socket(
   }
 }
 
-fn close_counter_socket(state: CounterSocket) -> Nil {
+fn close_component_socket(state: ComponentSocket) -> Nil {
   // When the websocket connection closes, we need to also shut down the server
   // component runtime. If we forget to do this we'll end up with a memory leak
   // and a zombie process!
