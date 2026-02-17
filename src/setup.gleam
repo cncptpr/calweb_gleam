@@ -36,7 +36,7 @@ pub fn serve_html() -> Response(ResponseData) {
           [attribute.type_("module"), attribute.src("/lustre/runtime.mjs")],
           "",
         ),
-        html.style([], styles.css),
+        // html.style([], styles.css),
       ]),
       html.body(
         [attribute.styles([#("max-width", "32rem"), #("margin", "3rem auto")])],
@@ -174,6 +174,6 @@ fn close_component_socket(state: ComponentSocket) -> Nil {
   // When the websocket connection closes, we need to also shut down the server
   // component runtime. If we forget to do this we'll end up with a memory leak
   // and a zombie process!
-  lustre.shutdown()
+  server_component.deregister_subject(state.self)
   |> lustre.send(to: state.component)
 }

@@ -7,6 +7,7 @@ import lustre/attribute.{attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
+import lustre/stylish as el
 
 // MAIN ------------------------------------------------------------------------
 
@@ -52,47 +53,12 @@ fn update(model: Model, msg: Msg) -> Model {
 fn view(model: Model) -> Element(Msg) {
   let count = int.to_string(model)
   // let styles = [#("display", "flex"), #("justify-content", "space-between")]
-  html.div([], [
-    html.div([attribute.id("todoApp"), attribute.class("todo-wrap")], [
-      html.header([attribute.class("todo-header")], [
-        html.h1([], [html.text("Todos")]),
-        html.small(
-          [attribute("aria-live", "polite"), attribute.class("todo-count")],
-          [html.text("0 remaining")],
-        ),
-      ]),
-      html.main(
-        [
-          attribute("aria-live", "polite"),
-          attribute.id("todoList"),
-          attribute.class("todo-list"),
-        ],
-        [
-          todo_card.component(TodoItem("asdddddd", True)),
-          todo_card.component(TodoItem("Anderer Todo", False)),
-          todo_card.component(TodoItem("kjhasdkjkkkk", False)),
-          todo_card.component(TodoItem("Wohooo!", False)),
-        ],
-      ),
-      html.footer([attribute.class("todo-creator")], [
-        html.input([
-          attribute("aria-label", "Create new todo"),
-          attribute.placeholder("Create new todo"),
-          attribute.class("new-todo"),
-          attribute.id("newTodo"),
-          attribute.type_("text"),
-        ]),
-        html.button(
-          [
-            attribute("aria-label", "Add todo"),
-            attribute.class("btn btn-add"),
-            attribute.id("addTodoBtn"),
-          ],
-          [html.text("Add")],
-        ),
-      ]),
-    ]),
+
+  el.column([el.center_x], [
+    el.text("Hello?"),
+    todo_card.component(TodoItem("Check this out!", True)),
   ])
+  |> el.layout([], _)
 }
 
 fn view_button(label label: String, on_click handle_click: msg) -> Element(msg) {
